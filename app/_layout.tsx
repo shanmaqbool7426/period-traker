@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,11 +14,28 @@ import {
   Nunito_600SemiBold,
   Nunito_700Bold,
 } from '@expo-google-fonts/nunito';
-import { AppProvider } from '@/contexts/AppContext';
+import { AppProvider, useApp } from '@/contexts/AppContext';
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
+
+function NavigationGuard() {
+  const { profile } = useApp();
+  const router = useRouter();
+  const segments = useSegments();
+
+  useEffect(() => {
+    const inOnboarding = segments[0] === 'onboarding';
+    if (!profile.onboardingComplete && !inOnboarding) {
+      router.replace('/onboarding');
+    } else if (profile.onboardingComplete && inOnboarding) {
+      router.replace('/(tabs)');
+    }
+  }, [profile.onboardingComplete, segments]);
+
+  return null;
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -44,7 +61,9 @@ export default function RootLayout() {
           <KeyboardProvider>
             <AppProvider>
               <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+              <NavigationGuard />
               <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="onboarding" />
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="modal/log" options={{ presentation: 'modal' }} />
                 <Stack.Screen name="modal/insights" options={{ presentation: 'modal' }} />
