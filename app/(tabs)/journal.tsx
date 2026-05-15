@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { hapticImpact, hapticSelection, hapticNotification } from '@/utils/haptics';
 import { useColors } from '@/hooks/useColors';
 import { useApp } from '@/contexts/AppContext';
@@ -33,6 +34,7 @@ const phaseInsight: Record<string, { text: string; icon: string; color: string }
 export default function JournalScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { logs, addLog, addXP, currentPhase } = useApp();
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
 
@@ -85,15 +87,24 @@ export default function JournalScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={[styles.title, { color: colors.text }]}>Daily Journal</Text>
             <Text style={[styles.date, { color: colors.textSecondary }]}>
               {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             </Text>
           </View>
-          <View style={[styles.xpBadge, { backgroundColor: colors.gold + '15', borderColor: colors.gold + '40' }]}>
-            <Ionicons name="star" size={13} color={colors.gold} />
-            <Text style={[styles.xpText, { color: colors.gold }]}>+20 XP</Text>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              onPress={() => { hapticImpact(); router.push('/modal/insights'); }}
+              style={[styles.trendsBtn, { backgroundColor: '#c084fc' + '15', borderColor: '#c084fc' + '40' }]}
+            >
+              <Ionicons name="analytics-outline" size={14} color="#c084fc" />
+              <Text style={[styles.trendsBtnText, { color: '#c084fc' }]}>Trends</Text>
+            </TouchableOpacity>
+            <View style={[styles.xpBadge, { backgroundColor: colors.gold + '15', borderColor: colors.gold + '40' }]}>
+              <Ionicons name="star" size={13} color={colors.gold} />
+              <Text style={[styles.xpText, { color: colors.gold }]}>+20 XP</Text>
+            </View>
           </View>
         </View>
 
@@ -267,9 +278,20 @@ export default function JournalScreen() {
 
 const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, gap: 20 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 },
   title: { fontFamily: 'Nunito_700Bold', fontSize: 28 },
   date: { fontFamily: 'Nunito_400Regular', fontSize: 14, marginTop: 2 },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 4 },
+  trendsBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  trendsBtnText: { fontFamily: 'Nunito_700Bold', fontSize: 12 },
   xpBadge: {
     flexDirection: 'row',
     alignItems: 'center',
