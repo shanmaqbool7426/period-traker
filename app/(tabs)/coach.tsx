@@ -60,7 +60,7 @@ const quickPrompts = [
   { text: 'What should I eat?', icon: 'restaurant-outline', color: '#f472b6' },
   { text: 'Best workout today?', icon: 'fitness-outline', color: '#a78bfa' },
   { text: 'How to improve sleep?', icon: 'moon-outline', color: '#2dd4bf' },
-  { text: 'Support my mood', icon: 'heart-outline', color: '#fbbf24' },
+  { text: 'Support my mood', icon: 'heart-outline', color: '#fb923c' },
 ];
 
 function getResponse(input: string, phase: string): string {
@@ -87,20 +87,20 @@ function getResponse(input: string, phase: string): string {
   return `${advice.default}\n\nI'm here to support your wellness journey. Ask me about food, workouts, sleep, or emotional wellbeing during this phase. 🌙`;
 }
 
+const phaseAccentColors: Record<string, string> = {
+  menstrual: '#f472b6',
+  follicular: '#c084fc',
+  ovulation: '#2dd4bf',
+  luteal: '#fb923c',
+};
+
 export default function CoachScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { currentPhase } = useApp();
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : insets.bottom;
-
-  const phaseColors: Record<string, string> = {
-    menstrual: '#f472b6',
-    follicular: '#c084fc',
-    ovulation: '#2dd4bf',
-    luteal: '#fb923c',
-  };
-  const phaseColor = phaseColors[currentPhase] || colors.primary;
+  const phaseColor = phaseAccentColors[currentPhase] || colors.primary;
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -153,16 +153,11 @@ export default function CoachScreen() {
           </View>
         )}
         {isUser ? (
-          <LinearGradient
-            colors={[colors.primary, colors.accent]}
-            style={[styles.bubble, { marginLeft: 48 }]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
+          <View style={[styles.bubble, styles.userBubble, { backgroundColor: colors.primary }]}>
             <Text style={[styles.bubbleText, { color: '#fff' }]}>{item.text}</Text>
-          </LinearGradient>
+          </View>
         ) : (
-          <View style={[styles.bubble, { backgroundColor: colors.glassBg, borderColor: colors.glassBorder, borderWidth: 1, marginRight: 48 }]}>
+          <View style={[styles.bubble, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1, marginRight: 48 }]}>
             <Text style={[styles.bubbleText, { color: colors.text }]}>{item.text}</Text>
           </View>
         )}
@@ -171,28 +166,21 @@ export default function CoachScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={[phaseColor + '20', colors.background, colors.primary + '14']}
-      locations={[0, 0.35, 1]}
-      style={{ flex: 1 }}
-    >
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
-      <LinearGradient
-        colors={[colors.background + 'f8', colors.background + 'e0']}
-        style={[styles.header, { paddingTop: topPad + 12 }]}
-      >
+      <View style={[styles.header, { paddingTop: topPad + 12, backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <MoonIcon size={40} phase={currentPhase} animate />
         <View style={{ flex: 1 }}>
           <Text style={[styles.headerTitle, { color: colors.text }]}>Luna Coach</Text>
           <Text style={[styles.headerSub, { color: colors.textSecondary }]}>AI Wellness Companion</Text>
         </View>
-        <View style={[styles.phaseChip, { backgroundColor: phaseColor + '22', borderColor: phaseColor + '55' }]}>
+        <View style={[styles.phaseChip, { backgroundColor: phaseColor + '15', borderColor: phaseColor + '40' }]}>
           <View style={[styles.phaseChipDot, { backgroundColor: phaseColor }]} />
           <Text style={[styles.phaseChipText, { color: phaseColor }]}>
             {currentPhase.charAt(0).toUpperCase() + currentPhase.slice(1)}
           </Text>
         </View>
-      </LinearGradient>
+      </View>
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -211,7 +199,7 @@ export default function CoachScreen() {
                 <View style={styles.avatarWrap}>
                   <MoonIcon size={34} phase={currentPhase} animate={false} />
                 </View>
-                <View style={[styles.bubble, { backgroundColor: colors.glassBg, borderColor: colors.glassBorder, borderWidth: 1 }]}>
+                <View style={[styles.bubble, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
                   <View style={styles.typingDots}>
                     {[0, 1, 2].map(i => (
                       <View key={i} style={[styles.typingDot, { backgroundColor: colors.primary }]} />
@@ -234,18 +222,18 @@ export default function CoachScreen() {
             <TouchableOpacity
               key={p.text}
               onPress={() => sendMessage(p.text)}
-              style={[styles.quickChip, { backgroundColor: p.color + '18', borderColor: p.color + '45' }]}
+              style={[styles.quickChip, { backgroundColor: colors.card, borderColor: colors.border }]}
             >
               <Ionicons name={p.icon as any} size={14} color={p.color} />
-              <Text style={[styles.quickText, { color: p.color }]}>{p.text}</Text>
+              <Text style={[styles.quickText, { color: colors.text }]}>{p.text}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
-        {/* Input */}
-        <View style={[styles.inputBar, { borderTopColor: colors.border, paddingBottom: bottomPad + 8, backgroundColor: colors.surface + 'f0' }]}>
+        {/* Input Bar */}
+        <View style={[styles.inputBar, { borderTopColor: colors.border, paddingBottom: bottomPad + 8, backgroundColor: colors.surface }]}>
           <TextInput
-            style={[styles.input, { backgroundColor: colors.glassBg, borderColor: colors.glassBorder, color: colors.text }]}
+            style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
             placeholder="Ask Luna anything..."
             placeholderTextColor={colors.mutedForeground}
             value={input}
@@ -257,11 +245,10 @@ export default function CoachScreen() {
           <TouchableOpacity
             onPress={() => sendMessage(input)}
             disabled={!input.trim()}
-            style={styles.sendBtnWrap}
           >
             {input.trim() ? (
               <LinearGradient
-                colors={[colors.primary, colors.accent]}
+                colors={['#7c3aed', '#be185d']}
                 style={styles.sendBtn}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
@@ -276,7 +263,7 @@ export default function CoachScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -288,7 +275,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(192,132,252,0.15)',
   },
   headerTitle: { fontFamily: 'Nunito_700Bold', fontSize: 18 },
   headerSub: { fontFamily: 'Nunito_400Regular', fontSize: 12, marginTop: 1 },
@@ -308,10 +294,11 @@ const styles = StyleSheet.create({
   msgRowUser: { flexDirection: 'row-reverse' },
   avatarWrap: { marginBottom: 4 },
   bubble: { maxWidth: '80%', borderRadius: 20, padding: 14 },
+  userBubble: { marginLeft: 48 },
   bubbleText: { fontFamily: 'Nunito_400Regular', fontSize: 14, lineHeight: 22 },
   typingDots: { flexDirection: 'row', gap: 4, padding: 4 },
   typingDot: { width: 6, height: 6, borderRadius: 3, opacity: 0.6 },
-  quickRow: { paddingHorizontal: 16, paddingVertical: 8, gap: 8 },
+  quickRow: { paddingHorizontal: 16, paddingVertical: 10, gap: 8 },
   quickChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -320,6 +307,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 9,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   quickText: { fontFamily: 'Nunito_600SemiBold', fontSize: 13 },
   inputBar: {
@@ -333,13 +325,12 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderRadius: 24,
-    borderWidth: 1.5,
+    borderWidth: 1,
     paddingHorizontal: 18,
     paddingVertical: 11,
     fontFamily: 'Nunito_400Regular',
     fontSize: 14,
   },
-  sendBtnWrap: {},
   sendBtn: {
     width: 42,
     height: 42,

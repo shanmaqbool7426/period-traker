@@ -6,7 +6,7 @@ import { useColors } from '@/hooks/useColors';
 
 function TabIcon({ name, color, focused }: { name: any; color: string; focused: boolean }) {
   return (
-    <View style={[styles.iconWrap, focused && { backgroundColor: color + '20' }]}>
+    <View style={[styles.iconWrap, focused && { backgroundColor: color + '18' }]}>
       <Ionicons name={name} size={22} color={color} />
     </View>
   );
@@ -16,19 +16,24 @@ export default function TabLayout() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
 
-  const tabBarHeight = Platform.OS === 'web' ? 84 : 60 + insets.bottom;
+  const tabBarHeight = Platform.OS === 'web' ? 72 : 60 + insets.bottom;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: '#ffffff',
           borderTopColor: colors.border,
           borderTopWidth: 1,
           height: tabBarHeight,
-          paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom,
+          paddingBottom: Platform.OS === 'web' ? 16 : insets.bottom,
           paddingTop: 8,
+          shadowColor: '#7c3aed',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.06,
+          shadowRadius: 10,
+          elevation: 8,
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.mutedForeground,

@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { hapticSelection } from '@/utils/haptics';
 import { useColors } from '@/hooks/useColors';
 import { useApp } from '@/contexts/AppContext';
@@ -44,6 +45,7 @@ const phaseColors: Record<string, string> = {
 export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { profile, streak, xp, currentPhase } = useApp();
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const phaseColor = phaseColors[currentPhase] || colors.primary;
@@ -58,24 +60,15 @@ export default function ProfileScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={[phaseColor + '22', colors.background, colors.primary + '14']}
-      locations={[0, 0.4, 1]}
-      style={{ flex: 1 }}
-    >
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView
         contentContainerStyle={[styles.scroll, { paddingTop: topPad + 16 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Profile Header */}
-        <LinearGradient
-          colors={[phaseColor + '28', colors.primary + '18']}
-          style={[styles.profileCard, { borderColor: phaseColor + '40', borderWidth: 1 }]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
+        {/* Profile Card */}
+        <View style={[styles.profileCard, { backgroundColor: colors.card, borderColor: colors.border, borderTopColor: phaseColor, borderTopWidth: 3 }]}>
           <View style={styles.avatarSection}>
-            <View style={[styles.avatar, { borderColor: phaseColor, borderWidth: 2.5, shadowColor: phaseColor, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 12 }]}>
+            <View style={[styles.avatar, { borderColor: phaseColor + '60', borderWidth: 2 }]}>
               <MoonIcon size={64} phase={currentPhase} animate />
             </View>
             <View style={styles.profileInfo}>
@@ -83,61 +76,59 @@ export default function ProfileScreen() {
               <Text style={[styles.profileSub, { color: colors.textSecondary }]}>
                 {currentPhase.charAt(0).toUpperCase() + currentPhase.slice(1)} Phase
               </Text>
-              <View style={[styles.premiumBadge, { backgroundColor: colors.gold + '28', borderColor: colors.gold + '60' }]}>
+              <View style={[styles.premiumBadge, { backgroundColor: colors.gold + '15', borderColor: colors.gold + '40' }]}>
                 <Ionicons name="star" size={12} color={colors.gold} />
                 <Text style={[styles.premiumText, { color: colors.gold }]}>Cycle Master</Text>
               </View>
             </View>
           </View>
           <XPBar xp={xp} />
-        </LinearGradient>
+        </View>
 
-        {/* Stats */}
+        {/* Stats Grid */}
         <View style={styles.statsGrid}>
           {wellnessStats.map(stat => (
-            <GlassCard key={stat.label} style={[styles.statCard, { borderColor: stat.color + '35' }]}>
-              <View style={[styles.statIconWrap, { backgroundColor: stat.color + '22' }]}>
+            <View key={stat.label} style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border, borderTopColor: stat.color, borderTopWidth: 3 }]}>
+              <View style={[styles.statIconWrap, { backgroundColor: stat.color + '15' }]}>
                 <Ionicons name={stat.icon as any} size={18} color={stat.color} />
               </View>
               <Text style={[styles.statValue, { color: colors.text }]}>{stat.value}</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{stat.label}</Text>
-            </GlassCard>
+            </View>
           ))}
         </View>
 
         {/* Streak */}
-        <LinearGradient
-          colors={[colors.gold + '28', colors.gold + '10']}
-          style={[styles.streakCard, { borderColor: colors.gold + '50', borderWidth: 1 }]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <View style={[styles.streakIconWrap, { backgroundColor: colors.gold + '25' }]}>
-            <Ionicons name="flame" size={28} color={colors.gold} />
+        <View style={[styles.streakCard, { backgroundColor: colors.card, borderColor: colors.border, borderLeftColor: colors.gold, borderLeftWidth: 4 }]}>
+          <View style={[styles.streakIconWrap, { backgroundColor: colors.gold + '15' }]}>
+            <Ionicons name="flame" size={26} color={colors.gold} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={[styles.streakNum, { color: colors.gold }]}>{streak} day streak 🔥</Text>
+            <Text style={[styles.streakNum, { color: colors.text }]}>{streak} day streak 🔥</Text>
             <Text style={[styles.streakDesc, { color: colors.textSecondary }]}>Keep logging to maintain your streak!</Text>
           </View>
-        </LinearGradient>
+        </View>
 
         {/* Achievements */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>ACHIEVEMENTS</Text>
           <View style={styles.achieveGrid}>
             {achievements.map(a => (
-              <LinearGradient
+              <View
                 key={a.id}
-                colors={a.unlocked ? [a.color + '28', a.color + '12'] : [colors.glassBg, colors.glassBg]}
                 style={[
                   styles.achieveCard,
-                  { borderColor: a.unlocked ? a.color + '50' : colors.glassBorder, borderWidth: 1 },
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: a.unlocked ? a.color + '40' : colors.border,
+                    borderTopColor: a.unlocked ? a.color : colors.border,
+                    borderTopWidth: a.unlocked ? 3 : 1,
+                    borderWidth: 1,
+                  },
                   !a.unlocked && { opacity: 0.45 },
                 ]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
               >
-                <View style={[styles.achieveIcon, { backgroundColor: a.color + '25' }]}>
+                <View style={[styles.achieveIcon, { backgroundColor: a.color + '15' }]}>
                   <Ionicons name={a.icon as any} size={22} color={a.unlocked ? a.color : colors.mutedForeground} />
                 </View>
                 <Text style={[styles.achieveLabel, { color: a.unlocked ? colors.text : colors.mutedForeground }]}>
@@ -148,14 +139,26 @@ export default function ProfileScreen() {
                     <Ionicons name="lock-closed" size={9} color={colors.mutedForeground} />
                   </View>
                 )}
-              </LinearGradient>
+              </View>
             ))}
           </View>
         </View>
 
         {/* Cycle Settings */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>CYCLE SETTINGS</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>CYCLE SETTINGS</Text>
+            <TouchableOpacity
+              onPress={() => {
+                hapticSelection();
+                router.push('/modal/edit-cycle');
+              }}
+              style={[styles.editBtn, { backgroundColor: colors.primary + '12', borderColor: colors.primary + '30' }]}
+            >
+              <Ionicons name="create-outline" size={13} color={colors.primary} />
+              <Text style={[styles.editBtnText, { color: colors.primary }]}>Edit</Text>
+            </TouchableOpacity>
+          </View>
           <GlassCard style={styles.settingsCard}>
             {[
               { label: 'Cycle Length', value: `${profile.cycleLength} days`, icon: 'refresh-outline', color: colors.primary },
@@ -165,20 +168,18 @@ export default function ProfileScreen() {
               <View key={item.label}>
                 {i > 0 && <View style={[styles.divider, { backgroundColor: colors.border }]} />}
                 <View style={styles.settingRow}>
-                  <View style={[styles.settingIconWrap, { backgroundColor: item.color + '20' }]}>
+                  <View style={[styles.settingIconWrap, { backgroundColor: item.color + '12' }]}>
                     <Ionicons name={item.icon as any} size={15} color={item.color} />
                   </View>
                   <Text style={[styles.settingLabel, { color: colors.text }]}>{item.label}</Text>
-                  <View style={[styles.settingValueBadge, { backgroundColor: item.color + '18' }]}>
-                    <Text style={[styles.settingValue, { color: item.color }]}>{item.value}</Text>
-                  </View>
+                  <Text style={[styles.settingValue, { color: item.color }]}>{item.value}</Text>
                 </View>
               </View>
             ))}
           </GlassCard>
         </View>
 
-        {/* App Settings */}
+        {/* Preferences */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>PREFERENCES</Text>
           <GlassCard style={styles.settingsCard}>
@@ -190,14 +191,14 @@ export default function ProfileScreen() {
               <View key={item.label}>
                 {i > 0 && <View style={[styles.divider, { backgroundColor: colors.border }]} />}
                 <View style={styles.settingRow}>
-                  <View style={[styles.settingIconWrap, { backgroundColor: item.color + '20' }]}>
+                  <View style={[styles.settingIconWrap, { backgroundColor: item.color + '12' }]}>
                     <Ionicons name={item.icon as any} size={15} color={item.color} />
                   </View>
                   <Text style={[styles.settingLabel, { color: colors.text }]}>{item.label}</Text>
                   <Switch
                     value={item.value}
                     onValueChange={() => toggle(item.setter, item.value)}
-                    trackColor={{ false: colors.muted, true: item.color + '80' }}
+                    trackColor={{ false: colors.muted, true: item.color + '70' }}
                     thumbColor={item.value ? item.color : colors.mutedForeground}
                   />
                 </View>
@@ -208,10 +209,10 @@ export default function ProfileScreen() {
 
         {/* Premium CTA */}
         <LinearGradient
-          colors={[colors.primary, colors.accent]}
-          style={[styles.premiumCta, { shadowColor: colors.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 14 }]}
+          colors={['#7c3aed', '#be185d']}
+          style={styles.premiumCta}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          end={{ x: 1, y: 0 }}
         >
           <View style={styles.premiumIconWrap}>
             <Ionicons name="star" size={22} color="#fff" />
@@ -227,22 +228,32 @@ export default function ProfileScreen() {
 
         <View style={{ height: Platform.OS === 'web' ? 34 : 20 }} />
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, gap: 20 },
-  profileCard: { borderRadius: 24, padding: 20, gap: 18 },
+  profileCard: {
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 20,
+    gap: 18,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 2,
+  },
   avatarSection: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   avatar: {
-    width: 84,
-    height: 84,
-    borderRadius: 28,
+    width: 80,
+    height: 80,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    backgroundColor: 'rgba(192,132,252,0.12)',
+    backgroundColor: '#f3eeff',
   },
   profileInfo: { flex: 1, gap: 6 },
   profileName: { fontFamily: 'Nunito_700Bold', fontSize: 24 },
@@ -265,6 +276,13 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 16,
     paddingHorizontal: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
   },
   statIconWrap: {
     width: 36,
@@ -275,18 +293,41 @@ const styles = StyleSheet.create({
   },
   statValue: { fontFamily: 'Nunito_700Bold', fontSize: 18 },
   statLabel: { fontFamily: 'Nunito_400Regular', fontSize: 10, textAlign: 'center' },
-  streakCard: { flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 24, padding: 18 },
-  streakIconWrap: {
-    width: 50,
-    height: 50,
+  streakCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
     borderRadius: 16,
+    borderWidth: 1,
+    padding: 18,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 1,
+  },
+  streakIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  streakNum: { fontFamily: 'Nunito_700Bold', fontSize: 18 },
+  streakNum: { fontFamily: 'Nunito_700Bold', fontSize: 17 },
   streakDesc: { fontFamily: 'Nunito_400Regular', fontSize: 13, marginTop: 2 },
   section: { gap: 12 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   sectionTitle: { fontFamily: 'Nunito_700Bold', fontSize: 11, letterSpacing: 1.8, textTransform: 'uppercase' },
+  editBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  editBtnText: { fontFamily: 'Nunito_600SemiBold', fontSize: 12 },
   achieveGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   achieveCard: {
     width: '30%',
@@ -294,10 +335,15 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 16,
     paddingHorizontal: 6,
-    borderRadius: 20,
+    borderRadius: 16,
     position: 'relative',
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
   },
-  achieveIcon: { width: 46, height: 46, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  achieveIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   achieveLabel: { fontFamily: 'Nunito_600SemiBold', fontSize: 10, textAlign: 'center' },
   lockBadge: {
     position: 'absolute',
@@ -309,8 +355,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  settingsCard: { gap: 4, padding: 4 },
-  settingRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 12, paddingVertical: 14 },
+  settingsCard: { gap: 0, padding: 4 },
+  settingRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 14 },
   settingIconWrap: {
     width: 30,
     height: 30,
@@ -319,15 +365,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   settingLabel: { fontFamily: 'Nunito_500Medium', fontSize: 14, flex: 1 },
-  settingValueBadge: { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
-  settingValue: { fontFamily: 'Nunito_600SemiBold', fontSize: 13 },
-  divider: { height: 1, marginHorizontal: 12 },
+  settingValue: { fontFamily: 'Nunito_600SemiBold', fontSize: 14 },
+  divider: { height: 1, marginHorizontal: 14 },
   premiumCta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    borderRadius: 22,
+    borderRadius: 18,
     padding: 20,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 4,
   },
   premiumIconWrap: {
     width: 44,

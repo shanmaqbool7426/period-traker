@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { hapticImpact, hapticSelection } from '@/utils/haptics';
@@ -15,7 +14,6 @@ import { useColors } from '@/hooks/useColors';
 import { useApp } from '@/contexts/AppContext';
 import { GlassCard } from '@/components/ui/GlassCard';
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const FULL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS = ['S','M','T','W','T','F','S'];
 
@@ -84,11 +82,7 @@ export default function CalendarScreen() {
   const selectedColor = selectedPhase ? phaseColors[selectedPhase] : colors.primary;
 
   return (
-    <LinearGradient
-      colors={[colors.primary + '22', colors.background, colors.accent + '14']}
-      locations={[0, 0.45, 1]}
-      style={{ flex: 1 }}
-    >
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView
         contentContainerStyle={[styles.scroll, { paddingTop: topPad + 16 }]}
         showsVerticalScrollIndicator={false}
@@ -99,15 +93,15 @@ export default function CalendarScreen() {
             <Text style={[styles.title, { color: colors.text }]}>Cycle Calendar</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Track your phases</Text>
           </View>
-          <View style={[styles.phaseDot, { backgroundColor: phaseColors[currentPhase] + '30', borderColor: phaseColors[currentPhase] + '60' }]}>
-            <View style={[styles.phaseDotInner, { backgroundColor: phaseColors[currentPhase] }]} />
-            <Text style={[styles.phaseDotText, { color: phaseColors[currentPhase] }]}>{phaseLabels[currentPhase]}</Text>
+          <View style={[styles.phasePill, { backgroundColor: phaseColors[currentPhase] + '15', borderColor: phaseColors[currentPhase] + '50' }]}>
+            <View style={[styles.phaseDot, { backgroundColor: phaseColors[currentPhase] }]} />
+            <Text style={[styles.phasePillText, { color: phaseColors[currentPhase] }]}>{phaseLabels[currentPhase]}</Text>
           </View>
         </View>
 
         {/* Month Navigation */}
         <GlassCard style={styles.monthNavCard}>
-          <TouchableOpacity onPress={prevMonth} style={[styles.navBtn, { backgroundColor: colors.glassBg }]}>
+          <TouchableOpacity onPress={prevMonth} style={[styles.navBtn, { backgroundColor: colors.muted }]}>
             <Ionicons name="chevron-back" size={18} color={colors.primary} />
           </TouchableOpacity>
           <View style={styles.monthCenter}>
@@ -116,16 +110,16 @@ export default function CalendarScreen() {
             </Text>
             <Text style={[styles.yearText, { color: colors.textSecondary }]}>{viewYear}</Text>
           </View>
-          <TouchableOpacity onPress={nextMonth} style={[styles.navBtn, { backgroundColor: colors.glassBg }]}>
+          <TouchableOpacity onPress={nextMonth} style={[styles.navBtn, { backgroundColor: colors.muted }]}>
             <Ionicons name="chevron-forward" size={18} color={colors.primary} />
           </TouchableOpacity>
         </GlassCard>
 
-        {/* Calendar */}
+        {/* Calendar Grid */}
         <GlassCard style={styles.calCard}>
           <View style={styles.dayHeaders}>
             {DAYS.map((d, i) => (
-              <Text key={i} style={[styles.dayHeader, { color: colors.textSecondary }]}>{d}</Text>
+              <Text key={i} style={[styles.dayHeader, { color: colors.mutedForeground }]}>{d}</Text>
             ))}
           </View>
           <View style={styles.grid}>
@@ -140,9 +134,9 @@ export default function CalendarScreen() {
                   key={idx}
                   style={[
                     styles.cell,
-                    pColor && { backgroundColor: pColor + '25' },
-                    isSelected && { backgroundColor: (pColor || colors.primary) + '55', borderColor: pColor || colors.primary, borderWidth: 2 },
-                    isToday && !isSelected && { borderColor: colors.primary + '80', borderWidth: 1.5 },
+                    pColor && { backgroundColor: pColor + '18' },
+                    isSelected && { backgroundColor: (pColor || colors.primary) + '30', borderColor: pColor || colors.primary, borderWidth: 2 },
+                    isToday && !isSelected && { borderColor: colors.primary, borderWidth: 1.5 },
                   ]}
                   onPress={() => {
                     hapticSelection();
@@ -170,7 +164,7 @@ export default function CalendarScreen() {
           <Text style={[styles.legendTitle, { color: colors.textSecondary }]}>PHASE GUIDE</Text>
           <View style={styles.legendRow}>
             {Object.entries(phaseColors).map(([phase, color]) => (
-              <View key={phase} style={[styles.legendItem, { backgroundColor: color + '18', borderColor: color + '40', borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6 }]}>
+              <View key={phase} style={[styles.legendItem, { backgroundColor: color + '12', borderColor: color + '35', borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6 }]}>
                 <View style={[styles.legendDot, { backgroundColor: color }]} />
                 <Text style={[styles.legendLabel, { color }]}>
                   {phase.charAt(0).toUpperCase() + phase.slice(1)}
@@ -182,14 +176,9 @@ export default function CalendarScreen() {
 
         {/* Selected Day Info */}
         {selectedDay && (
-          <LinearGradient
-            colors={[selectedColor + '28', selectedColor + '10']}
-            style={[styles.dayInfo, { borderColor: selectedColor + '50', borderWidth: 1 }]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
+          <View style={[styles.dayInfo, { backgroundColor: '#ffffff', borderColor: selectedColor + '40', borderWidth: 1, borderLeftColor: selectedColor, borderLeftWidth: 4 }]}>
             <View style={styles.dayInfoHeader}>
-              <View style={[styles.dayNumCircle, { backgroundColor: selectedColor + '30', borderColor: selectedColor }]}>
+              <View style={[styles.dayNumCircle, { backgroundColor: selectedColor + '15', borderColor: selectedColor + '50', borderWidth: 1 }]}>
                 <Text style={[styles.dayNumLarge, { color: selectedColor }]}>{selectedDay}</Text>
               </View>
               <View style={{ flex: 1 }}>
@@ -232,12 +221,12 @@ export default function CalendarScreen() {
                 No entry logged for this day.
               </Text>
             )}
-          </LinearGradient>
+          </View>
         )}
 
         <View style={{ height: Platform.OS === 'web' ? 34 : 20 }} />
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -246,7 +235,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   title: { fontFamily: 'Nunito_700Bold', fontSize: 28 },
   subtitle: { fontFamily: 'Nunito_400Regular', fontSize: 13, marginTop: 2 },
-  phaseDot: {
+  phasePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -255,8 +244,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
-  phaseDotInner: { width: 8, height: 8, borderRadius: 4 },
-  phaseDotText: { fontFamily: 'Nunito_600SemiBold', fontSize: 12 },
+  phaseDot: { width: 7, height: 7, borderRadius: 4 },
+  phasePillText: { fontFamily: 'Nunito_600SemiBold', fontSize: 12 },
   monthNavCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 },
   navBtn: {
     width: 36,
@@ -268,7 +257,7 @@ const styles = StyleSheet.create({
   monthCenter: { alignItems: 'center', gap: 2 },
   monthTitle: { fontFamily: 'Nunito_700Bold', fontSize: 20 },
   yearText: { fontFamily: 'Nunito_400Regular', fontSize: 13 },
-  calCard: { gap: 12, padding: 14 },
+  calCard: { gap: 10, padding: 14 },
   dayHeaders: { flexDirection: 'row' },
   dayHeader: {
     flex: 1,
@@ -283,16 +272,17 @@ const styles = StyleSheet.create({
     height: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: 10,
     position: 'relative',
   },
   dayNum: { fontFamily: 'Nunito_500Medium', fontSize: 13 },
   todayDot: { width: 4, height: 4, borderRadius: 2, position: 'absolute', bottom: 3 },
-  legend: { gap: 12 },
+  legend: { gap: 10 },
   legendTitle: {
     fontFamily: 'Nunito_700Bold',
     fontSize: 11,
     letterSpacing: 1.8,
+    textTransform: 'uppercase',
   },
   legendRow: {
     flexDirection: 'row',
@@ -304,19 +294,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  legendDot: { width: 8, height: 8, borderRadius: 4 },
+  legendDot: { width: 7, height: 7, borderRadius: 4 },
   legendLabel: { fontFamily: 'Nunito_600SemiBold', fontSize: 12 },
-  dayInfo: { borderRadius: 22, padding: 18, gap: 14 },
+  dayInfo: {
+    borderRadius: 20,
+    padding: 18,
+    gap: 14,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 2,
+  },
   dayInfoHeader: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   dayNumCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    borderWidth: 1.5,
+    width: 46,
+    height: 46,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dayNumLarge: { fontFamily: 'Nunito_700Bold', fontSize: 22 },
+  dayNumLarge: { fontFamily: 'Nunito_700Bold', fontSize: 20 },
   dayInfoTitle: { fontFamily: 'Nunito_700Bold', fontSize: 16 },
   dayPhaseText: { fontFamily: 'Nunito_600SemiBold', fontSize: 13, marginTop: 2 },
   logDetails: { gap: 8 },

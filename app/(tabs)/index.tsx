@@ -7,7 +7,6 @@ import {
   Platform,
   TouchableOpacity,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '@/hooks/useColors';
@@ -35,6 +34,13 @@ const phaseDescriptions = {
   luteal: 'Turn inward. Your intuition is heightened.',
 };
 
+const phaseAccentColors: Record<string, string> = {
+  menstrual: '#f472b6',
+  follicular: '#c084fc',
+  ovulation: '#2dd4bf',
+  luteal: '#fb923c',
+};
+
 const quickActions = [
   { icon: 'water-outline' as const, label: 'Flow', color: '#f472b6' },
   { icon: 'fitness-outline' as const, label: 'Symptoms', color: '#a78bfa' },
@@ -60,26 +66,10 @@ export default function HomeScreen() {
   } = useApp();
 
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
-
-  const phaseGradients: Record<string, [string, string, string]> = {
-    menstrual: ['#f472b6' + '28', '#c084fc' + '18', colors.background],
-    follicular: ['#c084fc' + '28', '#818cf8' + '18', colors.background],
-    ovulation: ['#2dd4bf' + '28', '#c084fc' + '18', colors.background],
-    luteal: ['#fb923c' + '22', '#f472b6' + '18', colors.background],
-  };
-
-  const phaseMoonGradients: Record<string, [string, string]> = {
-    menstrual: ['#f472b620', '#c084fc18'],
-    follicular: ['#c084fc22', '#818cf818'],
-    ovulation: ['#2dd4bf22', '#c084fc18'],
-    luteal: ['#fb923c20', '#f472b618'],
-  };
-
-  const [g1, g2, g3] = phaseGradients[currentPhase];
-  const moonGrad = phaseMoonGradients[currentPhase] as [string, string];
+  const phaseColor = phaseAccentColors[currentPhase];
 
   return (
-    <LinearGradient colors={[g1, g2, g3]} locations={[0, 0.4, 1]} style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={[styles.scroll, { paddingTop: topPad + 16 }]}
@@ -91,8 +81,8 @@ export default function HomeScreen() {
             <Text style={[styles.greeting, { color: colors.textSecondary }]}>Good morning,</Text>
             <Text style={[styles.name, { color: colors.text }]}>{profile.name} ✨</Text>
           </View>
-          <View style={[styles.streakBadge, { backgroundColor: colors.gold + '25', borderColor: colors.gold + '60' }]}>
-            <Ionicons name="flame" size={18} color={colors.gold} />
+          <View style={[styles.streakBadge, { backgroundColor: colors.gold + '15', borderColor: colors.gold + '40' }]}>
+            <Ionicons name="flame" size={17} color={colors.gold} />
             <Text style={[styles.streakText, { color: colors.gold }]}>{streak}</Text>
           </View>
         </View>
@@ -102,13 +92,8 @@ export default function HomeScreen() {
           <XPBar xp={xp} />
         </GlassCard>
 
-        {/* Moon + Phase Card */}
-        <LinearGradient
-          colors={moonGrad}
-          style={[styles.moonCard, { borderColor: colors.glassBorder }]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
+        {/* Phase Card */}
+        <View style={[styles.phaseCard, { backgroundColor: colors.card, borderColor: colors.border, borderLeftColor: phaseColor, borderLeftWidth: 4 }]}>
           <View style={styles.moonRow}>
             <View style={styles.moonInfo}>
               <PhaseBadge phase={currentPhase} compact />
@@ -118,16 +103,16 @@ export default function HomeScreen() {
               <Text style={[styles.phaseDesc, { color: colors.textSecondary }]}>
                 {phaseDescriptions[currentPhase]}
               </Text>
-              <View style={[styles.cycleStat, { backgroundColor: colors.glassBg, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6 }]}>
-                <Ionicons name="calendar-outline" size={13} color={colors.primary} />
-                <Text style={[styles.cycleStatText, { color: colors.text }]}>
+              <View style={[styles.cycleStat, { backgroundColor: phaseColor + '12', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 }]}>
+                <Ionicons name="calendar-outline" size={12} color={phaseColor} />
+                <Text style={[styles.cycleStatText, { color: phaseColor }]}>
                   Day {cycleDay} · Next in {daysUntilNextPeriod}d
                 </Text>
               </View>
             </View>
-            <MoonIcon size={96} phase={currentPhase} animate />
+            <MoonIcon size={88} phase={currentPhase} animate />
           </View>
-        </LinearGradient>
+        </View>
 
         {/* Cycle Timeline */}
         <View style={styles.section}>
@@ -163,19 +148,19 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* Quick Actions */}
+        {/* Quick Log */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>QUICK LOG</Text>
           <View style={styles.quickRow}>
             {quickActions.map((item) => (
               <TouchableOpacity
                 key={item.label}
-                style={[styles.quickBtn, { backgroundColor: item.color + '20', borderColor: item.color + '50' }]}
+                style={[styles.quickBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
               >
-                <View style={[styles.quickIconWrap, { backgroundColor: item.color + '25' }]}>
+                <View style={[styles.quickIconWrap, { backgroundColor: item.color + '15' }]}>
                   <Ionicons name={item.icon} size={20} color={item.color} />
                 </View>
-                <Text style={[styles.quickLabel, { color: item.color }]}>{item.label}</Text>
+                <Text style={[styles.quickLabel, { color: colors.text }]}>{item.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -183,7 +168,7 @@ export default function HomeScreen() {
 
         <View style={{ height: Platform.OS === 'web' ? 34 : 20 }} />
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -212,7 +197,7 @@ const styles = StyleSheet.create({
     gap: 5,
     borderRadius: 20,
     borderWidth: 1.5,
-    paddingHorizontal: 14,
+    paddingHorizontal: 13,
     paddingVertical: 7,
   },
   streakText: {
@@ -220,10 +205,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   xpCard: { paddingVertical: 14 },
-  moonCard: {
-    borderRadius: 24,
+  phaseCard: {
+    borderRadius: 20,
     borderWidth: 1,
     padding: 20,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 2,
   },
   moonRow: {
     flexDirection: 'row',
@@ -238,7 +228,7 @@ const styles = StyleSheet.create({
   phaseDesc: {
     fontFamily: 'Nunito_400Regular',
     fontSize: 13,
-    lineHeight: 19,
+    lineHeight: 20,
   },
   cycleStat: {
     flexDirection: 'row',
@@ -263,11 +253,16 @@ const styles = StyleSheet.create({
   },
   quickBtn: {
     flex: 1,
-    borderRadius: 18,
-    borderWidth: 1.5,
+    borderRadius: 16,
+    borderWidth: 1,
     alignItems: 'center',
     paddingVertical: 14,
     gap: 8,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
   },
   quickIconWrap: {
     width: 36,
@@ -277,7 +272,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   quickLabel: {
-    fontFamily: 'Nunito_700Bold',
+    fontFamily: 'Nunito_600SemiBold',
     fontSize: 11,
   },
 });

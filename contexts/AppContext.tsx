@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { Platform } from 'react-native';
 
 export interface CycleLog {
   id: string;
@@ -41,8 +42,28 @@ const defaultProfile: UserProfile = {
   cycleLength: 28,
   periodLength: 5,
   lastPeriodStart: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-  onboardingComplete: false,
+  onboardingComplete: true,
 };
+
+const STORAGE_KEY = 'lunasync_profile';
+
+function loadProfile(): UserProfile {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (raw) return { ...defaultProfile, ...JSON.parse(raw) };
+    } catch {}
+  }
+  return defaultProfile;
+}
+
+function saveProfile(p: UserProfile) {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+    } catch {}
+  }
+}
 
 const AppContext = createContext<AppContextType | null>(null);
 
@@ -68,7 +89,7 @@ function computePhase(
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [profile, setProfile] = useState<UserProfile>(defaultProfile);
+  const [profile, setProfile] = useState<UserProfile>(loadProfile);
   const [logs, setLogs] = useState<CycleLog[]>([]);
   const [todayMood, setTodayMood] = useState('calm');
   const [hydration, setHydration] = useState(4);
@@ -81,8 +102,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     profile.periodLength
   );
 
-  const updateProfile = (p: Partial<UserProfile>) =>
-    setProfile(prev => ({ ...prev, ...p }));
+  const updateProfile = (p: Partial<UserProfile>) => {
+    setProfile(prev => {
+      const next = { ...prev, ...p };
+      saveProfile(next);
+      return next;
+    });
+  };
 
   const addLog = (log: CycleLog) =>
     setLogs(prev => [log, ...prev.filter(l => l.date !== log.date)]);

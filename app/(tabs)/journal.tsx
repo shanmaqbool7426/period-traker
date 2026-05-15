@@ -77,11 +77,7 @@ export default function JournalScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={[colors.accent + '22', colors.background, colors.primary + '16']}
-      locations={[0, 0.4, 1]}
-      style={{ flex: 1 }}
-    >
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView
         contentContainerStyle={[styles.scroll, { paddingTop: topPad + 16 }]}
         showsVerticalScrollIndicator={false}
@@ -95,26 +91,21 @@ export default function JournalScreen() {
               {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             </Text>
           </View>
-          <View style={[styles.xpBadge, { backgroundColor: colors.gold + '25', borderColor: colors.gold + '55' }]}>
+          <View style={[styles.xpBadge, { backgroundColor: colors.gold + '15', borderColor: colors.gold + '40' }]}>
             <Ionicons name="star" size={13} color={colors.gold} />
             <Text style={[styles.xpText, { color: colors.gold }]}>+20 XP</Text>
           </View>
         </View>
 
-        {/* Hormone Insight */}
-        <LinearGradient
-          colors={[insight.color + '28', insight.color + '10']}
-          style={[styles.insight, { borderColor: insight.color + '45', borderWidth: 1 }]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <View style={[styles.insightIcon, { backgroundColor: insight.color + '30' }]}>
+        {/* Phase Insight */}
+        <View style={[styles.insightCard, { backgroundColor: colors.card, borderColor: colors.border, borderLeftColor: insight.color, borderLeftWidth: 4 }]}>
+          <View style={[styles.insightIcon, { backgroundColor: insight.color + '15' }]}>
             <Ionicons name={insight.icon as any} size={16} color={insight.color} />
           </View>
           <Text style={[styles.insightText, { color: colors.text }]}>{insight.text}</Text>
-        </LinearGradient>
+        </View>
 
-        {/* Flow */}
+        {/* Flow Intensity */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>FLOW INTENSITY</Text>
           <View style={styles.flowRow}>
@@ -131,8 +122,8 @@ export default function JournalScreen() {
                   style={[
                     styles.flowBtn,
                     {
-                      backgroundColor: isSel ? fc + '28' : colors.glassBg,
-                      borderColor: isSel ? fc : colors.glassBorder,
+                      backgroundColor: isSel ? fc + '15' : colors.card,
+                      borderColor: isSel ? fc : colors.border,
                       borderWidth: isSel ? 1.5 : 1,
                     },
                   ]}
@@ -160,8 +151,8 @@ export default function JournalScreen() {
                   style={[
                     styles.chip,
                     {
-                      backgroundColor: sel ? colors.primary + '28' : colors.glassBg,
-                      borderColor: sel ? colors.primary : colors.glassBorder,
+                      backgroundColor: sel ? colors.primary + '12' : colors.card,
+                      borderColor: sel ? colors.primary : colors.border,
                       borderWidth: sel ? 1.5 : 1,
                     },
                   ]}
@@ -176,7 +167,7 @@ export default function JournalScreen() {
           </View>
         </View>
 
-        {/* Energy */}
+        {/* Energy Level */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>ENERGY LEVEL</Text>
           <View style={styles.energyRow}>
@@ -193,8 +184,8 @@ export default function JournalScreen() {
                   style={[
                     styles.energyBtn,
                     {
-                      backgroundColor: isSel ? ec + '28' : colors.glassBg,
-                      borderColor: isSel ? ec : colors.glassBorder,
+                      backgroundColor: isSel ? ec + '15' : colors.card,
+                      borderColor: isSel ? ec : colors.border,
                       borderWidth: isSel ? 1.5 : 1,
                     },
                   ]}
@@ -226,12 +217,12 @@ export default function JournalScreen() {
           </GlassCard>
         </View>
 
-        {/* Save */}
+        {/* Save Button */}
         <LinearGradient
-          colors={saved ? [colors.teal, colors.teal + 'cc'] : [colors.primary, colors.accent]}
-          style={[styles.saveBtn, { shadowColor: saved ? colors.teal : colors.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 12 }]}
+          colors={saved ? ['#0f766e', '#0f766e'] : ['#7c3aed', '#be185d']}
+          style={styles.saveBtn}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          end={{ x: 1, y: 0 }}
         >
           <TouchableOpacity onPress={handleSave} style={styles.saveBtnInner}>
             <Ionicons name={saved ? 'checkmark-circle' : 'save-outline'} size={20} color="#fff" />
@@ -246,7 +237,7 @@ export default function JournalScreen() {
             {logs.slice(0, 3).map(log => (
               <GlassCard key={log.id} style={styles.logCard}>
                 <View style={styles.logCardHeader}>
-                  <View style={[styles.logDateBadge, { backgroundColor: colors.primary + '25', borderColor: colors.primary + '50' }]}>
+                  <View style={[styles.logDateBadge, { backgroundColor: colors.primary + '12', borderColor: colors.primary + '30', borderWidth: 1 }]}>
                     <Text style={[styles.logDate, { color: colors.primary }]}>{log.date}</Text>
                   </View>
                   <Text style={[styles.logEnergy, { color: energyColors[log.energy - 1] }]}>
@@ -254,7 +245,7 @@ export default function JournalScreen() {
                   </Text>
                 </View>
                 <View style={styles.logMeta}>
-                  <View style={[styles.logMetaItem, { backgroundColor: flowColors[log.flow] + '20' }]}>
+                  <View style={[styles.logMetaItem, { backgroundColor: flowColors[log.flow] + '15', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }]}>
                     <Text style={[styles.logDetail, { color: flowColors[log.flow] }]}>Flow: {log.flow}</Text>
                   </View>
                 </View>
@@ -270,7 +261,7 @@ export default function JournalScreen() {
 
         <View style={{ height: Platform.OS === 'web' ? 34 : 20 }} />
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -289,12 +280,18 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   xpText: { fontFamily: 'Nunito_700Bold', fontSize: 12 },
-  insight: {
+  insightCard: {
     flexDirection: 'row',
     gap: 12,
     alignItems: 'flex-start',
-    borderRadius: 20,
+    borderRadius: 16,
+    borderWidth: 1,
     padding: 16,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 1,
   },
   insightIcon: {
     width: 32,
@@ -309,10 +306,15 @@ const styles = StyleSheet.create({
   flowRow: { flexDirection: 'row', gap: 8 },
   flowBtn: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 14,
     paddingVertical: 12,
     alignItems: 'center',
     gap: 6,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
   },
   flowLabel: { fontFamily: 'Nunito_600SemiBold', fontSize: 12 },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
@@ -328,10 +330,15 @@ const styles = StyleSheet.create({
   energyRow: { flexDirection: 'row', gap: 6 },
   energyBtn: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 14,
     paddingVertical: 12,
     alignItems: 'center',
     gap: 3,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
   },
   energyEmoji: { fontSize: 18 },
   energyNum: { fontFamily: 'Nunito_700Bold', fontSize: 15 },
@@ -343,8 +350,13 @@ const styles = StyleSheet.create({
     minHeight: 80,
   },
   saveBtn: {
-    borderRadius: 20,
+    borderRadius: 16,
     overflow: 'hidden',
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 4,
   },
   saveBtnInner: {
     flexDirection: 'row',
@@ -358,13 +370,12 @@ const styles = StyleSheet.create({
   logCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   logDateBadge: {
     borderRadius: 10,
-    borderWidth: 1,
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
   logDate: { fontFamily: 'Nunito_600SemiBold', fontSize: 13 },
   logEnergy: { fontFamily: 'Nunito_600SemiBold', fontSize: 13 },
   logMeta: { flexDirection: 'row', gap: 8 },
-  logMetaItem: { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
+  logMetaItem: {},
   logDetail: { fontFamily: 'Nunito_400Regular', fontSize: 13 },
 });
