@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import { hapticImpact } from '@/utils/haptics';
 import { useColors } from '@/hooks/useColors';
 
 type Phase = 'menstrual' | 'follicular' | 'ovulation' | 'luteal';
@@ -40,15 +40,15 @@ export function AffirmationCard({ phase }: AffirmationCardProps) {
   const [idx, setIdx] = useState(0);
 
   const next = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact();
     setIdx((i) => (i + 1) % list.length);
   };
 
   const gradColors: Record<Phase, [string, string]> = {
-    menstrual: [colors.accent + '30', colors.accentLight + '10'],
-    follicular: [colors.primary + '30', colors.primaryLight + '10'],
-    ovulation: [colors.teal + '30', colors.teal + '10'],
-    luteal: [colors.accentLight + '30', colors.peach + '10' as any],
+    menstrual: [colors.accent + '45', colors.accentLight + '25'],
+    follicular: [colors.primary + '45', colors.primaryLight + '22'],
+    ovulation: [colors.teal + '45', colors.primary + '22'],
+    luteal: [colors.accentLight + '45', (colors as any).peach + '25' || colors.accent + '25'],
   };
   const [g1, g2] = gradColors[phase];
 
@@ -59,10 +59,17 @@ export function AffirmationCard({ phase }: AffirmationCardProps) {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <Ionicons name="sparkles" size={18} color={colors.gold} style={{ marginBottom: 8 }} />
+      <View style={styles.topRow}>
+        <View style={[styles.sparkleWrap, { backgroundColor: colors.gold + '30' }]}>
+          <Ionicons name="sparkles" size={16} color={colors.gold} />
+        </View>
+        <Text style={[styles.label, { color: colors.gold }]}>Daily Affirmation</Text>
+        <Text style={[styles.counter, { color: colors.textSecondary }]}>{idx + 1}/{list.length}</Text>
+      </View>
       <Text style={[styles.text, { color: colors.text }]}>{list[idx]}</Text>
-      <TouchableOpacity onPress={next} style={styles.refreshBtn}>
-        <Ionicons name="refresh" size={16} color={colors.textSecondary} />
+      <TouchableOpacity onPress={next} style={[styles.refreshBtn, { backgroundColor: colors.glassBg, borderColor: colors.glassBorder }]}>
+        <Ionicons name="refresh" size={14} color={colors.textSecondary} />
+        <Text style={[styles.refreshText, { color: colors.textSecondary }]}>Next</Text>
       </TouchableOpacity>
     </LinearGradient>
   );
@@ -70,20 +77,52 @@ export function AffirmationCard({ phase }: AffirmationCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1,
     padding: 20,
-    position: 'relative',
+    gap: 14,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  sparkleWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  label: {
+    fontFamily: 'Nunito_700Bold',
+    fontSize: 12,
+    letterSpacing: 0.8,
+    flex: 1,
+    textTransform: 'uppercase',
+  },
+  counter: {
+    fontFamily: 'Nunito_400Regular',
+    fontSize: 11,
   },
   text: {
     fontFamily: 'Nunito_600SemiBold',
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 24,
     fontStyle: 'italic',
   },
   refreshBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     alignSelf: 'flex-end',
-    marginTop: 12,
-    padding: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  refreshText: {
+    fontFamily: 'Nunito_500Medium',
+    fontSize: 12,
   },
 });

@@ -6,18 +6,18 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import { hapticImpact } from '@/utils/haptics';
 import { useColors } from '@/hooks/useColors';
 
 const moods = [
-  { id: 'radiant', label: 'Radiant', icon: '✨' },
-  { id: 'calm', label: 'Calm', icon: '🌸' },
-  { id: 'energized', label: 'Energized', icon: '⚡' },
-  { id: 'tender', label: 'Tender', icon: '🌷' },
-  { id: 'melancholy', label: 'Melancholy', icon: '🌧️' },
-  { id: 'anxious', label: 'Anxious', icon: '🌀' },
-  { id: 'tired', label: 'Tired', icon: '🌙' },
-  { id: 'irritable', label: 'Irritable', icon: '🌪️' },
+  { id: 'radiant', label: 'Radiant', icon: '✨', color: '#fbbf24' },
+  { id: 'calm', label: 'Calm', icon: '🌸', color: '#f472b6' },
+  { id: 'energized', label: 'Energized', icon: '⚡', color: '#a78bfa' },
+  { id: 'tender', label: 'Tender', icon: '🌷', color: '#fb7185' },
+  { id: 'melancholy', label: 'Melancholy', icon: '🌧️', color: '#60a5fa' },
+  { id: 'anxious', label: 'Anxious', icon: '🌀', color: '#34d399' },
+  { id: 'tired', label: 'Tired', icon: '🌙', color: '#818cf8' },
+  { id: 'irritable', label: 'Irritable', icon: '🌪️', color: '#f97316' },
 ];
 
 interface MoodSelectorProps {
@@ -29,7 +29,7 @@ export function MoodSelector({ selected, onSelect }: MoodSelectorProps) {
   const colors = useColors();
 
   const handleSelect = (mood: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact();
     onSelect(mood);
   };
 
@@ -48,8 +48,12 @@ export function MoodSelector({ selected, onSelect }: MoodSelectorProps) {
             style={[
               styles.chip,
               {
-                backgroundColor: isSelected ? colors.primary + '30' : colors.glassBg,
-                borderColor: isSelected ? colors.primary : colors.glassBorder,
+                backgroundColor: isSelected ? m.color + '30' : colors.glassBg,
+                borderColor: isSelected ? m.color : colors.glassBorder,
+                shadowColor: isSelected ? m.color : 'transparent',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: isSelected ? 0.4 : 0,
+                shadowRadius: 6,
               },
             ]}
           >
@@ -58,7 +62,7 @@ export function MoodSelector({ selected, onSelect }: MoodSelectorProps) {
               style={[
                 styles.label,
                 {
-                  color: isSelected ? colors.primary : colors.textSecondary,
+                  color: isSelected ? m.color : colors.textSecondary,
                   fontFamily: isSelected ? 'Nunito_700Bold' : 'Nunito_400Regular',
                 },
               ]}
@@ -82,10 +86,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    borderWidth: 1,
+    borderWidth: 1.5,
   },
   icon: { fontSize: 16 },
   label: { fontSize: 13 },

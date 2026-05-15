@@ -2,18 +2,18 @@ import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
   Platform,
   KeyboardAvoidingView,
   FlatList,
+  ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
+import { hapticImpact } from '@/utils/haptics';
 import { useColors } from '@/hooks/useColors';
 import { useApp } from '@/contexts/AppContext';
 import { MoonIcon } from '@/components/ui/MoonIcon';
@@ -57,36 +57,34 @@ const phaseAdvice: Record<string, Record<string, string>> = {
 };
 
 const quickPrompts = [
-  { text: 'What should I eat?', icon: 'restaurant-outline' },
-  { text: 'Best workout today?', icon: 'fitness-outline' },
-  { text: 'How to improve sleep?', icon: 'moon-outline' },
-  { text: 'Support my mood', icon: 'heart-outline' },
+  { text: 'What should I eat?', icon: 'restaurant-outline', color: '#f472b6' },
+  { text: 'Best workout today?', icon: 'fitness-outline', color: '#a78bfa' },
+  { text: 'How to improve sleep?', icon: 'moon-outline', color: '#2dd4bf' },
+  { text: 'Support my mood', icon: 'heart-outline', color: '#fbbf24' },
 ];
 
 function getResponse(input: string, phase: string): string {
   const lower = input.toLowerCase();
   const advice = phaseAdvice[phase] || phaseAdvice.follicular;
-
   if (lower.includes('eat') || lower.includes('food') || lower.includes('diet') || lower.includes('nutrition')) {
-    return `${advice.food}\n\nRemember, listening to your body\'s cravings during this phase is wisdom, not weakness.`;
+    return `${advice.food}\n\nListening to your body's cravings during this phase is wisdom, not weakness. 🌸`;
   }
   if (lower.includes('workout') || lower.includes('exercise') || lower.includes('gym') || lower.includes('fitness')) {
-    return `${advice.workout}\n\nYour cycle is your secret training guide. Working with it, not against it, yields the best results.`;
+    return `${advice.workout}\n\nYour cycle is your secret training guide. Working with it, not against it, yields the best results. 💪`;
   }
   if (lower.includes('sleep') || lower.includes('tired') || lower.includes('rest') || lower.includes('fatigue')) {
-    return `${advice.sleep}\n\nSleep quality shifts with your cycle. Track it in your journal to find your patterns.`;
+    return `${advice.sleep}\n\nSleep quality shifts with your cycle. Track it in your journal to find your patterns. 🌙`;
   }
-  if (lower.includes('mood') || lower.includes('feel') || lower.includes('emotional') || lower.includes('sad') || lower.includes('anxious') || lower.includes('irritable')) {
-    return `${advice.mood}\n\nYour feelings are valid and deeply connected to your hormones. You\'re not "too emotional" — you\'re cyclical, and that\'s beautiful.`;
+  if (lower.includes('mood') || lower.includes('feel') || lower.includes('emotional') || lower.includes('sad') || lower.includes('anxious')) {
+    return `${advice.mood}\n\nYour feelings are valid and deeply connected to your hormones. You're not "too emotional" — you're cyclical, and that's beautiful. 💜`;
   }
   if (lower.includes('cramp') || lower.includes('pain') || lower.includes('discomfort')) {
     return 'For cramps: heat therapy, gentle movement, magnesium supplements, and anti-inflammatory foods like ginger and turmeric can help. If pain is severe, please consult your doctor. 💗';
   }
   if (lower.includes('stress') || lower.includes('overwhelm')) {
-    return 'Breathwork is your fastest relief: try 4-7-8 breathing (inhale 4 counts, hold 7, exhale 8). Combine with a warm bath, journaling, or a gentle walk in nature. You\'ve got this. 🌸';
+    return 'Breathwork is your fastest relief: try 4-7-8 breathing (inhale 4 counts, hold 7, exhale 8). Combine with a warm bath, journaling, or a gentle walk in nature. 🌸';
   }
-
-  return `${advice.default}\n\nI\'m here to support your wellness journey. Ask me about food, workouts, sleep, or how to support your emotional wellbeing during this phase.`;
+  return `${advice.default}\n\nI'm here to support your wellness journey. Ask me about food, workouts, sleep, or emotional wellbeing during this phase. 🌙`;
 }
 
 export default function CoachScreen() {
@@ -96,11 +94,19 @@ export default function CoachScreen() {
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : insets.bottom;
 
+  const phaseColors: Record<string, string> = {
+    menstrual: '#f472b6',
+    follicular: '#c084fc',
+    ovulation: '#2dd4bf',
+    luteal: '#fb923c',
+  };
+  const phaseColor = phaseColors[currentPhase] || colors.primary;
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '0',
       role: 'luna',
-      text: `Hi there! I\'m Luna, your AI wellness companion. I\'m here to support you through every phase of your cycle with personalized advice.\n\nYou\'re currently in your ${currentPhase} phase. Ask me anything about nutrition, fitness, sleep, or emotional wellbeing!`,
+      text: `Hi there! I'm Luna, your AI wellness companion. 🌙\n\nI'm here to support you through every phase of your cycle with personalized advice.\n\nYou're currently in your ${currentPhase} phase. Ask me anything about nutrition, fitness, sleep, or emotional wellbeing!`,
       timestamp: new Date(),
     },
   ]);
@@ -110,7 +116,7 @@ export default function CoachScreen() {
 
   const sendMessage = (text: string) => {
     if (!text.trim()) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    hapticImpact();
 
     const userMsg: Message = {
       id: Date.now().toString(),
@@ -143,44 +149,55 @@ export default function CoachScreen() {
       <View style={[styles.msgRow, isUser && styles.msgRowUser]}>
         {!isUser && (
           <View style={styles.avatarWrap}>
-            <MoonIcon size={32} phase={currentPhase} animate={false} />
+            <MoonIcon size={34} phase={currentPhase} animate={false} />
           </View>
         )}
-        <View
-          style={[
-            styles.bubble,
-            isUser
-              ? { backgroundColor: colors.primary, marginLeft: 40 }
-              : { backgroundColor: colors.glassBg, borderColor: colors.glassBorder, borderWidth: 1, marginRight: 40 },
-          ]}
-        >
-          <Text style={[styles.bubbleText, { color: isUser ? '#fff' : colors.text }]}>
-            {item.text}
-          </Text>
-        </View>
+        {isUser ? (
+          <LinearGradient
+            colors={[colors.primary, colors.accent]}
+            style={[styles.bubble, { marginLeft: 48 }]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <Text style={[styles.bubbleText, { color: '#fff' }]}>{item.text}</Text>
+          </LinearGradient>
+        ) : (
+          <View style={[styles.bubble, { backgroundColor: colors.glassBg, borderColor: colors.glassBorder, borderWidth: 1, marginRight: 48 }]}>
+            <Text style={[styles.bubbleText, { color: colors.text }]}>{item.text}</Text>
+          </View>
+        )}
       </View>
     );
   };
 
   return (
     <LinearGradient
-      colors={[colors.background, colors.primary + '08', colors.background]}
+      colors={[phaseColor + '20', colors.background, colors.primary + '14']}
+      locations={[0, 0.35, 1]}
       style={{ flex: 1 }}
     >
       {/* Header */}
-      <View style={[styles.header, { paddingTop: topPad + 16, backgroundColor: colors.background + 'ee' }]}>
-        <MoonIcon size={36} phase={currentPhase} animate />
-        <View>
+      <LinearGradient
+        colors={[colors.background + 'f8', colors.background + 'e0']}
+        style={[styles.header, { paddingTop: topPad + 12 }]}
+      >
+        <MoonIcon size={40} phase={currentPhase} animate />
+        <View style={{ flex: 1 }}>
           <Text style={[styles.headerTitle, { color: colors.text }]}>Luna Coach</Text>
           <Text style={[styles.headerSub, { color: colors.textSecondary }]}>AI Wellness Companion</Text>
         </View>
-      </View>
+        <View style={[styles.phaseChip, { backgroundColor: phaseColor + '22', borderColor: phaseColor + '55' }]}>
+          <View style={[styles.phaseChipDot, { backgroundColor: phaseColor }]} />
+          <Text style={[styles.phaseChipText, { color: phaseColor }]}>
+            {currentPhase.charAt(0).toUpperCase() + currentPhase.slice(1)}
+          </Text>
+        </View>
+      </LinearGradient>
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* Messages */}
         <FlatList
           ref={flatRef}
           data={messages}
@@ -192,10 +209,14 @@ export default function CoachScreen() {
             isTyping ? (
               <View style={styles.msgRow}>
                 <View style={styles.avatarWrap}>
-                  <MoonIcon size={32} phase={currentPhase} animate={false} />
+                  <MoonIcon size={34} phase={currentPhase} animate={false} />
                 </View>
                 <View style={[styles.bubble, { backgroundColor: colors.glassBg, borderColor: colors.glassBorder, borderWidth: 1 }]}>
-                  <Text style={[styles.bubbleText, { color: colors.textSecondary }]}>Luna is thinking...</Text>
+                  <View style={styles.typingDots}>
+                    {[0, 1, 2].map(i => (
+                      <View key={i} style={[styles.typingDot, { backgroundColor: colors.primary }]} />
+                    ))}
+                  </View>
                 </View>
               </View>
             ) : null
@@ -213,16 +234,16 @@ export default function CoachScreen() {
             <TouchableOpacity
               key={p.text}
               onPress={() => sendMessage(p.text)}
-              style={[styles.quickChip, { backgroundColor: colors.primary + '15', borderColor: colors.primary + '30' }]}
+              style={[styles.quickChip, { backgroundColor: p.color + '18', borderColor: p.color + '45' }]}
             >
-              <Ionicons name={p.icon as any} size={14} color={colors.primary} />
-              <Text style={[styles.quickText, { color: colors.primary }]}>{p.text}</Text>
+              <Ionicons name={p.icon as any} size={14} color={p.color} />
+              <Text style={[styles.quickText, { color: p.color }]}>{p.text}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
         {/* Input */}
-        <View style={[styles.inputBar, { borderTopColor: colors.border, paddingBottom: bottomPad + 8, backgroundColor: colors.surface }]}>
+        <View style={[styles.inputBar, { borderTopColor: colors.border, paddingBottom: bottomPad + 8, backgroundColor: colors.surface + 'f0' }]}>
           <TextInput
             style={[styles.input, { backgroundColor: colors.glassBg, borderColor: colors.glassBorder, color: colors.text }]}
             placeholder="Ask Luna anything..."
@@ -235,10 +256,23 @@ export default function CoachScreen() {
           />
           <TouchableOpacity
             onPress={() => sendMessage(input)}
-            style={[styles.sendBtn, { backgroundColor: input.trim() ? colors.primary : colors.muted }]}
             disabled={!input.trim()}
+            style={styles.sendBtnWrap}
           >
-            <Ionicons name="arrow-up" size={18} color={input.trim() ? '#fff' : colors.mutedForeground} />
+            {input.trim() ? (
+              <LinearGradient
+                colors={[colors.primary, colors.accent]}
+                style={styles.sendBtn}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <Ionicons name="arrow-up" size={18} color="#fff" />
+              </LinearGradient>
+            ) : (
+              <View style={[styles.sendBtn, { backgroundColor: colors.muted }]}>
+                <Ionicons name="arrow-up" size={18} color={colors.mutedForeground} />
+              </View>
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -252,16 +286,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 20,
-    paddingBottom: 12,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(192,132,252,0.15)',
   },
   headerTitle: { fontFamily: 'Nunito_700Bold', fontSize: 18 },
-  headerSub: { fontFamily: 'Nunito_400Regular', fontSize: 12 },
-  messageList: { paddingHorizontal: 16, paddingVertical: 12, gap: 12 },
-  msgRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
+  headerSub: { fontFamily: 'Nunito_400Regular', fontSize: 12, marginTop: 1 },
+  phaseChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  phaseChipDot: { width: 6, height: 6, borderRadius: 3 },
+  phaseChipText: { fontFamily: 'Nunito_600SemiBold', fontSize: 12 },
+  messageList: { paddingHorizontal: 16, paddingVertical: 16, gap: 14 },
+  msgRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
   msgRowUser: { flexDirection: 'row-reverse' },
   avatarWrap: { marginBottom: 4 },
   bubble: { maxWidth: '80%', borderRadius: 20, padding: 14 },
-  bubbleText: { fontFamily: 'Nunito_400Regular', fontSize: 14, lineHeight: 21 },
+  bubbleText: { fontFamily: 'Nunito_400Regular', fontSize: 14, lineHeight: 22 },
+  typingDots: { flexDirection: 'row', gap: 4, padding: 4 },
+  typingDot: { width: 6, height: 6, borderRadius: 3, opacity: 0.6 },
   quickRow: { paddingHorizontal: 16, paddingVertical: 8, gap: 8 },
   quickChip: {
     flexDirection: 'row',
@@ -269,31 +318,32 @@ const styles = StyleSheet.create({
     gap: 6,
     borderRadius: 20,
     borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
   },
-  quickText: { fontFamily: 'Nunito_500Medium', fontSize: 12 },
+  quickText: { fontFamily: 'Nunito_600SemiBold', fontSize: 13 },
   inputBar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 10,
     borderTopWidth: 1,
   },
   input: {
     flex: 1,
     borderRadius: 24,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    borderWidth: 1.5,
+    paddingHorizontal: 18,
+    paddingVertical: 11,
     fontFamily: 'Nunito_400Regular',
     fontSize: 14,
   },
+  sendBtnWrap: {},
   sendBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
   },

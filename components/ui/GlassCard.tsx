@@ -1,15 +1,30 @@
 import React, { ReactNode } from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useColors } from '@/hooks/useColors';
 
 interface GlassCardProps {
   children: ReactNode;
   style?: ViewStyle;
   intensity?: 'low' | 'mid' | 'high';
+  gradient?: [string, string];
 }
 
-export function GlassCard({ children, style, intensity = 'mid' }: GlassCardProps) {
+export function GlassCard({ children, style, intensity = 'mid', gradient }: GlassCardProps) {
   const colors = useColors();
+
+  if (gradient) {
+    return (
+      <LinearGradient
+        colors={gradient}
+        style={[styles.card, { borderColor: colors.glassBorder }, style]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        {children}
+      </LinearGradient>
+    );
+  }
 
   const bgMap = {
     low: colors.glassBg,

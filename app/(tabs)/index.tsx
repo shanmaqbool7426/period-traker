@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -31,9 +31,16 @@ const phaseLabels = {
 const phaseDescriptions = {
   menstrual: 'Your body is renewing. Rest is your superpower today.',
   follicular: 'Energy is rising. Perfect for new beginnings.',
-  ovulation: 'You\'re at peak power. Shine bright!',
+  ovulation: "You're at peak power. Shine bright!",
   luteal: 'Turn inward. Your intuition is heightened.',
 };
+
+const quickActions = [
+  { icon: 'water-outline' as const, label: 'Flow', color: '#f472b6' },
+  { icon: 'fitness-outline' as const, label: 'Symptoms', color: '#a78bfa' },
+  { icon: 'moon-outline' as const, label: 'Sleep', color: '#2dd4bf' },
+  { icon: 'heart-outline' as const, label: 'Energy', color: '#fbbf24' },
+];
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -54,17 +61,25 @@ export default function HomeScreen() {
 
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
 
-  const gradients: Record<string, [string, string, string]> = {
-    menstrual: [colors.background, colors.accent + '18', colors.background],
-    follicular: [colors.background, colors.primary + '18', colors.background],
-    ovulation: [colors.background, colors.teal + '18', colors.background],
-    luteal: [colors.background, colors.accentLight + '18', colors.background],
+  const phaseGradients: Record<string, [string, string, string]> = {
+    menstrual: ['#f472b6' + '28', '#c084fc' + '18', colors.background],
+    follicular: ['#c084fc' + '28', '#818cf8' + '18', colors.background],
+    ovulation: ['#2dd4bf' + '28', '#c084fc' + '18', colors.background],
+    luteal: ['#fb923c' + '22', '#f472b6' + '18', colors.background],
   };
 
-  const [g1, g2, g3] = gradients[currentPhase];
+  const phaseMoonGradients: Record<string, [string, string]> = {
+    menstrual: ['#f472b620', '#c084fc18'],
+    follicular: ['#c084fc22', '#818cf818'],
+    ovulation: ['#2dd4bf22', '#c084fc18'],
+    luteal: ['#fb923c20', '#f472b618'],
+  };
+
+  const [g1, g2, g3] = phaseGradients[currentPhase];
+  const moonGrad = phaseMoonGradients[currentPhase] as [string, string];
 
   return (
-    <LinearGradient colors={[g1, g2, g3]} style={{ flex: 1 }}>
+    <LinearGradient colors={[g1, g2, g3]} locations={[0, 0.4, 1]} style={{ flex: 1 }}>
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={[styles.scroll, { paddingTop: topPad + 16 }]}
@@ -73,24 +88,27 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={[styles.greeting, { color: colors.textSecondary }]}>
-              Good morning,
-            </Text>
+            <Text style={[styles.greeting, { color: colors.textSecondary }]}>Good morning,</Text>
             <Text style={[styles.name, { color: colors.text }]}>{profile.name} ✨</Text>
           </View>
-          <View style={[styles.streakBadge, { backgroundColor: colors.gold + '20', borderColor: colors.gold + '40' }]}>
-            <Ionicons name="flame" size={16} color={colors.gold} />
+          <View style={[styles.streakBadge, { backgroundColor: colors.gold + '25', borderColor: colors.gold + '60' }]}>
+            <Ionicons name="flame" size={18} color={colors.gold} />
             <Text style={[styles.streakText, { color: colors.gold }]}>{streak}</Text>
           </View>
         </View>
 
         {/* XP Bar */}
-        <View style={styles.xpSection}>
+        <GlassCard style={styles.xpCard}>
           <XPBar xp={xp} />
-        </View>
+        </GlassCard>
 
         {/* Moon + Phase Card */}
-        <GlassCard style={styles.moonCard}>
+        <LinearGradient
+          colors={moonGrad}
+          style={[styles.moonCard, { borderColor: colors.glassBorder }]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
           <View style={styles.moonRow}>
             <View style={styles.moonInfo}>
               <PhaseBadge phase={currentPhase} compact />
@@ -100,16 +118,16 @@ export default function HomeScreen() {
               <Text style={[styles.phaseDesc, { color: colors.textSecondary }]}>
                 {phaseDescriptions[currentPhase]}
               </Text>
-              <View style={styles.cycleStat}>
-                <Ionicons name="calendar-outline" size={14} color={colors.primary} />
-                <Text style={[styles.cycleStatText, { color: colors.textSecondary }]}>
-                  Day {cycleDay} · Next period in {daysUntilNextPeriod}d
+              <View style={[styles.cycleStat, { backgroundColor: colors.glassBg, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6 }]}>
+                <Ionicons name="calendar-outline" size={13} color={colors.primary} />
+                <Text style={[styles.cycleStatText, { color: colors.text }]}>
+                  Day {cycleDay} · Next in {daysUntilNextPeriod}d
                 </Text>
               </View>
             </View>
-            <MoonIcon size={90} phase={currentPhase} animate />
+            <MoonIcon size={96} phase={currentPhase} animate />
           </View>
-        </GlassCard>
+        </LinearGradient>
 
         {/* Cycle Timeline */}
         <View style={styles.section}>
@@ -149,17 +167,14 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>QUICK LOG</Text>
           <View style={styles.quickRow}>
-            {[
-              { icon: 'water-outline', label: 'Flow', color: colors.accent },
-              { icon: 'fitness-outline', label: 'Symptoms', color: colors.primary },
-              { icon: 'moon-outline', label: 'Sleep', color: colors.teal },
-              { icon: 'heart-outline', label: 'Energy', color: colors.gold },
-            ].map((item) => (
+            {quickActions.map((item) => (
               <TouchableOpacity
                 key={item.label}
-                style={[styles.quickBtn, { backgroundColor: item.color + '15', borderColor: item.color + '30' }]}
+                style={[styles.quickBtn, { backgroundColor: item.color + '20', borderColor: item.color + '50' }]}
               >
-                <Ionicons name={item.icon as any} size={20} color={item.color} />
+                <View style={[styles.quickIconWrap, { backgroundColor: item.color + '25' }]}>
+                  <Ionicons name={item.icon} size={20} color={item.color} />
+                </View>
                 <Text style={[styles.quickLabel, { color: item.color }]}>{item.label}</Text>
               </TouchableOpacity>
             ))}
@@ -188,53 +203,59 @@ const styles = StyleSheet.create({
   },
   name: {
     fontFamily: 'Nunito_700Bold',
-    fontSize: 26,
+    fontSize: 28,
     marginTop: 2,
   },
   streakBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     borderRadius: 20,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderWidth: 1.5,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
   },
   streakText: {
     fontFamily: 'Nunito_700Bold',
-    fontSize: 14,
+    fontSize: 15,
   },
-  xpSection: { marginTop: -4 },
-  moonCard: { gap: 0 },
+  xpCard: { paddingVertical: 14 },
+  moonCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 20,
+  },
   moonRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  moonInfo: { flex: 1, gap: 8, paddingRight: 8 },
+  moonInfo: { flex: 1, gap: 10, paddingRight: 10 },
   phaseTitle: {
     fontFamily: 'Nunito_700Bold',
-    fontSize: 18,
+    fontSize: 20,
   },
   phaseDesc: {
     fontFamily: 'Nunito_400Regular',
     fontSize: 13,
-    lineHeight: 18,
+    lineHeight: 19,
   },
   cycleStat: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    alignSelf: 'flex-start',
   },
   cycleStatText: {
-    fontFamily: 'Nunito_500Medium',
+    fontFamily: 'Nunito_600SemiBold',
     fontSize: 12,
   },
   section: { gap: 10 },
   sectionTitle: {
-    fontFamily: 'Nunito_600SemiBold',
+    fontFamily: 'Nunito_700Bold',
     fontSize: 11,
-    letterSpacing: 1.5,
+    letterSpacing: 1.8,
+    textTransform: 'uppercase',
   },
   quickRow: {
     flexDirection: 'row',
@@ -242,14 +263,21 @@ const styles = StyleSheet.create({
   },
   quickBtn: {
     flex: 1,
-    borderRadius: 16,
-    borderWidth: 1,
+    borderRadius: 18,
+    borderWidth: 1.5,
     alignItems: 'center',
     paddingVertical: 14,
-    gap: 6,
+    gap: 8,
+  },
+  quickIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   quickLabel: {
-    fontFamily: 'Nunito_500Medium',
+    fontFamily: 'Nunito_700Bold',
     fontSize: 11,
   },
 });
