@@ -12,7 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { hapticSelection } from '@/utils/haptics';
+import { hapticSelection, hapticImpact } from '@/utils/haptics';
 import { useColors } from '@/hooks/useColors';
 import { useApp } from '@/contexts/AppContext';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -46,7 +46,7 @@ export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { profile, streak, xp, currentPhase } = useApp();
+  const { profile, streak, xp, currentPhase, partner } = useApp();
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const phaseColor = phaseColors[currentPhase] || colors.primary;
 
@@ -205,6 +205,48 @@ export default function ProfileScreen() {
               </View>
             ))}
           </GlassCard>
+        </View>
+
+        {/* Partner Sync */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>PARTNER SYNC</Text>
+          <TouchableOpacity
+            onPress={() => {
+              hapticImpact();
+              router.push('/modal/partner-sync');
+            }}
+            style={[
+              styles.partnerSyncCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: partner.linked ? '#f472b6' + '50' : colors.border,
+                borderLeftColor: '#f472b6',
+                borderLeftWidth: 4,
+              },
+            ]}
+          >
+            <View style={[styles.partnerSyncIcon, { backgroundColor: partner.linked ? '#f472b6' + '15' : colors.muted }]}>
+              <Ionicons name={partner.linked ? 'heart' : 'heart-outline'} size={22} color="#f472b6" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.partnerSyncTitle, { color: colors.text }]}>
+                {partner.linked ? `Connected with ${partner.partnerName}` : 'Connect with Your Partner'}
+              </Text>
+              <Text style={[styles.partnerSyncSub, { color: colors.textSecondary }]}>
+                {partner.linked
+                  ? 'They can see your phase & daily support tips'
+                  : 'Share cycle insights so they can support you better'}
+              </Text>
+            </View>
+            {partner.linked ? (
+              <View style={[styles.linkedBadge, { backgroundColor: '#f472b6' + '15', borderColor: '#f472b6' + '35' }]}>
+                <View style={[styles.linkedDot, { backgroundColor: '#f472b6' }]} />
+                <Text style={[styles.linkedText, { color: '#f472b6' }]}>Live</Text>
+              </View>
+            ) : (
+              <Ionicons name="chevron-forward" size={18} color={colors.mutedForeground} />
+            )}
+          </TouchableOpacity>
         </View>
 
         {/* Premium CTA */}
@@ -397,4 +439,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  partnerSyncCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 16,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  partnerSyncIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  partnerSyncTitle: { fontFamily: 'Nunito_700Bold', fontSize: 15 },
+  partnerSyncSub: { fontFamily: 'Nunito_400Regular', fontSize: 12, marginTop: 3, lineHeight: 18 },
+  linkedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+  },
+  linkedDot: { width: 6, height: 6, borderRadius: 3 },
+  linkedText: { fontFamily: 'Nunito_700Bold', fontSize: 11 },
 });

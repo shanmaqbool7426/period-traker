@@ -68,6 +68,7 @@ export default function RootLayout() {
                 <Stack.Screen name="modal/log" options={{ presentation: 'modal' }} />
                 <Stack.Screen name="modal/insights" options={{ presentation: 'modal' }} />
                 <Stack.Screen name="modal/edit-cycle" options={{ presentation: 'modal' }} />
+                <Stack.Screen name="modal/partner-sync" options={{ presentation: 'modal' }} />
               </Stack>
             </AppProvider>
           </KeyboardProvider>
